@@ -1,0 +1,34 @@
+{
+    "name":         "thadbryson/efficiency-benchmarking",
+    "description":  "Library for testing coding effiencies. Comes with tests, logging, reporting, and statistics.",
+    "keywords":     ["PHP", "efficiency", "benchmarking"],
+    "license":      "MIT",
+    "type":         "library",
+    "homepage":     "http://thadbryson.co/projects/efficiency-benchmarking",
+    "authors": [
+        {
+            "name":     "Thad Bryson",
+            "email":    "thadbry@gmail.com",
+            "homepage": "http://thadbryson.co",
+            "role":     "Author"
+        }
+    ],
+
+    "minimum-stability": "dev",
+
+    "require": {
+        "php":                  ">=5.4.0",
+        "symfony/stopwatch":    "2.6.*"
+    },
+
+    "require-dev": {
+        "mockery/mockery":      "0.9.*"
+    },
+
+    "autoload": {
+        "psr-4": {
+            "TCB\\Data\\":  "src/",
+            "TCB\\Test\\":  "test/src/"
+        }
+    }
+}
