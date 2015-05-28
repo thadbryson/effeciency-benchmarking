@@ -2,87 +2,58 @@
 
 require_once __DIR__.'/../vendor/autoload.php';
 
-use Symfony\Component\Stopwatch\Stopwatch;
+use TCB\Benchmarker\Suite;
+use TCB\Benchmarker\Test;
 
-// Set the # of array elements to the max PHP integer.
-const LOOP_COUNT = 10000000;
+$test1 = function ($fixtures) {
+    $fixtureArray = $fixtures[0];
 
-// Set max memeory size to a larger number. Default is 32 bytes.
-// Changing to: 1024 MB, also equal to 1 GB
-ini_set('memory_limit', '4096M');
+    foreach ($fixtureArray as $key => $curr) {}
+};
 
-// Get the big array.
-$arrayLarge = require_once __DIR__.'/fixtures/array_large.php';
+$test2 = function ($fixtures) {
+    $fixtureArray = $fixtures[0];
 
-$stopwatch = new Stopwatch();
+    while (list($key, $curr) = each($fixtureArray)) {}
+};
 
-/**
- * Test foreach() loop iteration times.
- */
-$stopwatch->start('foreach');
+$test3 = function ($fixtures) {
+    $fixtureArray = $fixtures[0];
 
-foreach ($arrayLarge as $key => $curr) {}
+    while (each($fixtureArray)) {}
+};
 
-$eventForeach = $stopwatch->stop('foreach');
+$test4 = function ($fixtures) {
+    $fixtureArray = $fixtures[0];
 
-/**
- * Test while() loop iteration times.
- */
-$stopwatch->start('while');
+    for ($i = 0;$i < LOOP_SIZE;$i++) { list($key, $curr) = each($fixtureArray); }
+};
 
-while (list($key, $curr) = each($arrayLarge)) {}
+$test5 = function ($fixtures) {
+    $fixtureArray = $fixtures[0];
 
-// Need to reset() the array or else it will be at the beginning.
-reset($arrayLarge);
+    for ($i = 0;$i < LOOP_SIZE;$i++) { each($fixtureArray); }
+};
 
-$eventWhile = $stopwatch->stop('while');
+// Fix an array with LOOP_SIZE number of elements all of value 0.
+const LOOP_SIZE = 10000000;
 
-/**
- * Test while() and not assign $key and $curr values loop iteration times.
- */
-$stopwatch->start('while-not');
+$fixtureArray = array_fill(0, LOOP_SIZE, 0);
 
-while (each($arrayLarge)) {}
+$suite = new Suite('Loop Testing', 'See what loop is fastest. foreach() vs while() vs for()', [$fixtureArray]);
 
-// Need to reset() the array or else it will be at the beginning.
-reset($arrayLarge);
+$test1 = new Test($test1, 'foreach()',                               "foreach (\$fixtureArray as \$key => \$curr) {}");
+$test2 = new Test($test2, 'while()',                                 "while (list(\$key, \$curr) = each(\$fixtureArray)) {}");
+$test3 = new Test($test3, 'while() without setting $key => $value',  "while (each(\$fixtureArray)) {}");
+$test4 = new Test($test4, 'for()',                                   "for (\$i = 0;\$i < LOOP_SIZE;\$i++) { list(\$key, \$curr) = each(\$fixtureArray); }");
+$test5 = new Test($test5, 'for() without setting $key => $value',    "for (\$i = 0;\$i < LOOP_SIZE;\$i++) { each(\$fixtureArray); }");
 
-$eventWhileNot = $stopwatch->stop('while-not');
+$suite
+    ->addTest($test1)
+    ->addTest($test2)
+    ->addTest($test3)
+    ->addTest($test4)
+    ->addTest($test5)
+;
 
-/**
- * Test for() loop iteration times.
- */
-$stopwatch->start('for');
-
-for ($i = 0;$i < LOOP_COUNT;$i++) {
-    list($key, $curr) = each($arrayLarge);
-}
-
-// Need to reset() the array or else it will be at the beginning.
-reset($arrayLarge);
-
-$eventFor = $stopwatch->stop('for');
-
-$stopwatch->start('for-not');
-
-for ($i = 0;$i < LOOP_COUNT;$i++) {
-    each($arrayLarge);
-}
-
-// Need to reset() the array or else it will be at the beginning.
-reset($arrayLarge);
-
-$eventForNot = $stopwatch->stop('for-not');
-
-const COLUMN_WIDTH = 30;
-
-echo "\n\nLoop Performance: foreach() vs while() vs for()\n\n";
-echo "We are using an array with ".LOOP_COUNT." elements.\n\n";
-echo "----- Results -----\n";
-
-echo str_pad('foreach():', COLUMN_WIDTH, ' ')               .$eventForeach->getDuration()."ms\n";
-echo str_pad('while():', COLUMN_WIDTH, ' ')                 .$eventWhile->getDuration()."ms\n";
-echo str_pad('while() - no assign:', COLUMN_WIDTH, ' ')     .$eventWhileNot->getDuration()."ms\n";
-echo str_pad('for():', COLUMN_WIDTH, ' ')                   .$eventFor->getDuration()."ms\n";
-echo str_pad('for() - no assign:', COLUMN_WIDTH, ' ')       .$eventForNot->getDuration()."ms\n";
-echo "\n";
+$suite->run();

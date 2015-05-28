@@ -18,6 +18,8 @@
 
     "require": {
         "php":                  ">=5.4.0",
+        "doctrine/common":      "@stable",
+        "symfony/console":      "2.6.*",
         "symfony/stopwatch":    "2.6.*"
     },
 
@@ -27,8 +29,7 @@
 
     "autoload": {
         "psr-4": {
-            "TCB\\Data\\":  "src/",
-            "TCB\\Test\\":  "test/src/"
+            "TCB\\Benchmarker\\":  "src/"
         }
     }
 }
